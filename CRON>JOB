@@ -1,0 +1,16 @@
+[root@ip-172-31-13-244 04-controllers]# vi cronjob.yaml
+[root@ip-172-31-13-244 04-controllers]# kubectl apply -f cronjob.yaml
+cronjob.batch/batch-job-every-fifteen-minutes created
+[root@ip-172-31-13-244 04-controllers]# kubectl get cronjob batch-job-every-fifteen-minutes
+NAME                              SCHEDULE             SUSPEND   ACTIVE   LAST SCHEDULE   AGE
+batch-job-every-fifteen-minutes   0,15,30,45 * * * *   False     0        <none>          72s
+[root@ip-172-31-13-244 04-controllers]# kubectl delete cronjob batch-job-every-fifteen-minutes
+cronjob.batch "batch-job-every-fifteen-minutes" deleted
+[root@ip-172-31-13-244 04-controllers]# kubectl get cronjob
+No resources found in kolins namespace.
+
+
+What is the change from normal Jobs (jobs v/s cronJobs)?
+Ans:- A Job creates one or more Pods, As pods successfully complete, the Job tracks the successful completions. 
+When a specified number of successful completions is reached, the task (ie, Job) is complete. 
+Both Jobs & CronJobs does the same thing except CronJob, It runs a job periodically on a given schedule.

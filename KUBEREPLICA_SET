@@ -1,0 +1,123 @@
+[root@ip-172-31-13-244 ~]# kubectl get pods -A
+NAMESPACE     NAME                                                                     READY   STATUS    RESTARTS   AGE
+default       kolins-nginx                                                             1/1     Running   0          25h
+default       kubia-6b5zs                                                              1/1     Running   0          3h51m
+default       kubia-frlmz                                                              1/1     Running   0          3h51m
+default       kubia-manual                                                             1/1     Running   0          24h
+default       kubia-npvrl                                                              1/1     Running   0          3h51m
+default       nginx-abinav                                                             1/1     Running   0          25h
+kolins        kubia2-djxnb                                                             1/1     Running   0          22h
+kolins        kubia2-p76jp                                                             1/1     Running   0          22h
+kolins        kubia2-qhg6p                                                             1/1     Running   0          22h
+kube-system   calico-etcd-l95cf                                                        1/1     Running   0          3d23h
+kube-system   calico-kube-controllers-7997dc8d7b-dbtd7                                 1/1     Running   1          3d23h
+kube-system   calico-node-5h5nm                                                        2/2     Running   0          3d23h
+kube-system   calico-node-ksh65                                                        2/2     Running   2          3d23h
+kube-system   coredns-66bff467f8-2cp5s                                                 1/1     Running   0          3d23h
+kube-system   coredns-66bff467f8-vgj4v                                                 1/1     Running   0          3d23h
+kube-system   etcd-ip-172-31-2-45.ap-southeast-1.compute.internal                      1/1     Running   0          3d23h
+kube-system   kube-apiserver-ip-172-31-2-45.ap-southeast-1.compute.internal            1/1     Running   0          3d23h
+kube-system   kube-controller-manager-ip-172-31-2-45.ap-southeast-1.compute.internal   1/1     Running   0          3d23h
+kube-system   kube-proxy-md6w9                                                         1/1     Running   0          3d23h
+kube-system   kube-proxy-nklf5                                                         1/1     Running   0          3d23h
+kube-system   kube-scheduler-ip-172-31-2-45.ap-southeast-1.compute.internal            1/1     Running   0          3d23h
+
+[root@ip-172-31-13-244 04-controllers]# kubectl apply -f kubia-replicaset.yaml
+replicaset.apps/kubia created
+[root@ip-172-31-13-244 04-controllers]# kubectl get rs
+NAME    DESIRED   CURRENT   READY   AGE
+kubia   3         3         3       2m22s
+[root@ip-172-31-13-244 04-controllers]# kubectl edit rs
+Edit cancelled, no changes made.
+
+[root@ip-172-31-13-244 04-controllers]# kubectl get nodes
+NAME                                               STATUS   ROLES    AGE     VERSION
+ip-172-31-13-244.ap-southeast-1.compute.internal   Ready    <none>   3d23h   v1.18.5
+ip-172-31-2-45.ap-southeast-1.compute.internal     Ready    master   3d23h   v1.18.5
+[root@ip-172-31-13-244 04-controllers]# kubectl get nodes --show-labels
+NAME                                               STATUS   ROLES    AGE     VERSION   LABELS
+ip-172-31-13-244.ap-southeast-1.compute.internal   Ready    <none>   3d23h   v1.18.5   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ip-172-31-13-244.ap-southeast-1.compute.internal,kubernetes.io/os=linux
+ip-172-31-2-45.ap-southeast-1.compute.internal     Ready    master   3d23h   v1.18.5   beta.kubernetes.io/arch=amd64,beta.kubernetes.io/os=linux,kubernetes.io/arch=amd64,kubernetes.io/hostname=ip-172-31-2-45.ap-southeast-1.compute.internal,kubernetes.io/os=linux,node-role.kubernetes.io/master=
+
+[root@ip-172-31-13-244 04-controllers]# kubectl describe pods -n default  kubia-manual
+Name:         kubia-manual
+Namespace:    default
+Priority:     0
+Node:         ip-172-31-13-244.ap-southeast-1.compute.internal/172.31.13.244
+Start Time:   Mon, 07 Nov 2022 10:45:27 +0000
+Labels:       app=ribbon
+Annotations:  Status:  Running
+IP:           192.168.185.70
+IPs:
+  IP:  192.168.185.70
+Containers:
+  kubia:
+    Container ID:   docker://a7b4305bd15a9d4e66ba89321d394475f2ac6966918f2302a8d4cabd171bcd0e
+    Image:          luksa/kubia
+    Image ID:       docker-pullable://luksa/kubia@sha256:3f28e304dc0f63dc30f273a4202096f0fa0d08510bd2ee7e1032ce600616de24
+    Port:           8080/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Mon, 07 Nov 2022 10:45:55 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-fnd8r (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  default-token-fnd8r:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-fnd8r
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:          <none>
+[root@ip-172-31-13-244 04-controllers]# curl 192.168.185.70:8080
+You've hit kubia-manual
+
+[root@ip-172-31-13-244 04-controllers]# kubectl get pods -A --show-labels
+NAMESPACE     NAME                                                                     READY   STATUS    RESTARTS   AGE     LABELS
+default       kolins-nginx                                                             1/1     Running   0          25h     run=kolins-nginx
+default       kubia-6b5zs                                                              1/1     Running   0          4h6m    app=kubia
+default       kubia-frlmz                                                              1/1     Running   0          4h6m    app=kubia
+default       kubia-manual                                                             1/1     Running   0          24h     app=ribbon
+default       kubia-npvrl                                                              1/1     Running   0          4h6m    app=kubia
+default       nginx-abinav                                                             1/1     Running   0          25h     run=nginx-abinav
+kolins        kubia-l7kdg                                                              1/1     Running   0          7m52s   app=kubia
+kolins        kubia-l8z92                                                              1/1     Running   0          7m52s   app=kubia
+kolins        kubia-md4f5                                                              1/1     Running   0          7m52s   app=kubia
+kolins        kubia2-djxnb                                                             1/1     Running   0          22h     app=kubia
+kolins        kubia2-p76jp                                                             1/1     Running   0          22h     app=kubia
+kolins        kubia2-qhg6p                                                             1/1     Running   0          22h     app=kubia
+kube-system   calico-etcd-l95cf                                                        1/1     Running   0          3d23h   controller-revision-hash=5f88c9dcc8,k8s-app=calico-etcd,pod-template-generation=1
+kube-system   calico-kube-controllers-7997dc8d7b-dbtd7                                 1/1     Running   1          3d23h   k8s-app=calico-kube-controllers,pod-template-hash=7997dc8d7b
+kube-system   calico-node-5h5nm                                                        2/2     Running   0          3d23h   controller-revision-hash=7f6bf46cdf,k8s-app=calico-node,pod-template-generation=1
+kube-system   calico-node-ksh65                                                        2/2     Running   2          3d23h   controller-revision-hash=7f6bf46cdf,k8s-app=calico-node,pod-template-generation=1
+kube-system   coredns-66bff467f8-2cp5s                                                 1/1     Running   0          3d23h   k8s-app=kube-dns,pod-template-hash=66bff467f8
+kube-system   coredns-66bff467f8-vgj4v                                                 1/1     Running   0          3d23h   k8s-app=kube-dns,pod-template-hash=66bff467f8
+kube-system   etcd-ip-172-31-2-45.ap-southeast-1.compute.internal                      1/1     Running   0          3d23h   component=etcd,tier=control-plane
+kube-system   kube-apiserver-ip-172-31-2-45.ap-southeast-1.compute.internal            1/1     Running   0          3d23h   component=kube-apiserver,tier=control-plane
+kube-system   kube-controller-manager-ip-172-31-2-45.ap-southeast-1.compute.internal   1/1     Running   0          3d23h   component=kube-controller-manager,tier=control-plane
+kube-system   kube-proxy-md6w9                                                         1/1     Running   0          3d23h   controller-revision-hash=5bdc57b48f,k8s-app=kube-proxy,pod-template-generation=1
+kube-system   kube-proxy-nklf5                                                         1/1     Running   0          3d23h   controller-revision-hash=5bdc57b48f,k8s-app=kube-proxy,pod-template-generation=1
+kube-system   kube-scheduler-ip-172-31-2-45.ap-southeast-1.compute.internal            1/1     Running   0          3d23h   component=kube-scheduler,tier=control-plane
+
+[root@ip-172-31-13-244 04-controllers]# kubectl label pods -n default kubia-6b5zs app=test --overwrite
+pod/kubia-6b5zs labeled
+
+[root@ip-172-31-13-244 04-controllers]# kubectl get pods -n default       kubia-6b5zs --show-labels
+NAMESPACE     NAME                                                                     READY   STATUS    RESTARTS   AGE     LABELS
+default       kubia-6b5zs                                                              1/1     Running   0          4h7m    app=test
+
+[root@ip-172-31-13-244 04-controllers]# kubectl get pods -n default       kubia-6b5zs     -o wide  --show-labels
+NAME          READY   STATUS    RESTARTS   AGE    IP               NODE                                               NOMINATED NODE   READINESS GATES   LABELS
+kubia-6b5zs   1/1     Running   0          4h9m   192.168.185.75   ip-172-31-13-244.ap-southeast-1.compute.internal   <none>           <none>            app=test
+
